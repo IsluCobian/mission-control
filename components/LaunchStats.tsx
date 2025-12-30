@@ -1,6 +1,7 @@
 "use client"
 
 import { useLaunchStats } from "@/hooks/useLaunchStats"
+import { cn } from "@/lib/utils"
 
 export function LaunchStats() {
   const { data: stats, isLoading, error } = useLaunchStats()
@@ -13,14 +14,17 @@ export function LaunchStats() {
     {
       label: "Successful",
       value: stats?.successful ?? 0,
+      color: "bg-green-500",
     },
     {
       label: "Failed",
       value: stats?.failed ?? 0,
+      color: "bg-destructive",
     },
     {
       label: "Upcoming",
       value: stats?.upcoming ?? 0,
+      color: "bg-blue-500",
     },
   ]
 
@@ -28,14 +32,13 @@ export function LaunchStats() {
     <div className="grid grid-cols-1 justify-items-end gap-3 sm:grid-cols-3">
       {statCards.map((stat) => {
         return (
-          <div key={stat.label}>
+          <div key={stat.label} className="flex items-center gap-3">
+            <div className={cn("size-1 rounded-full", stat.color)} />
             <div className="min-w-0 flex-1">
-              <p className="text-xl font-bold">
+              <p className="text-2xl leading-[1.2] font-bold">
                 {isLoading ? "..." : stats ? stat.value : "0"}
               </p>
-              <p className="text-muted-foreground text-xs font-medium">
-                {stat.label}
-              </p>
+              <p className="text-muted-foreground text-xs">{stat.label}</p>
             </div>
           </div>
         )

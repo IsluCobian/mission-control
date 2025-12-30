@@ -2,7 +2,7 @@
 
 import { LaunchDetails } from "@/components/LaunchDetails"
 import { LaunchList } from "@/components/LaunchList"
-import { ModeToggle } from "@/components/ModeToogle"
+import { LaunchStats } from "@/components/LaunchStats"
 import { PaginationControls } from "@/components/PaginationControls"
 import { SearchBar } from "@/components/SearchBar"
 import { Sidebar } from "@/components/Sidebar"
@@ -74,16 +74,22 @@ export default function Home() {
     <div className="flex">
       <Sidebar />
       <div className="flex h-dvh flex-1 flex-col">
-        <header className="border-b px-4 py-4 sm:px-6">
+        <header className="flex justify-between border-b px-4 py-4 sm:px-6">
           <h1 className="flex items-center gap-1.5 leading-none">
             <span className="text-muted-foreground leading-0">SpaceY</span>
             <ChevronRight className="text-muted-foreground size-4" />
             Mission Control
           </h1>
+          <span className="max-w-sm">
+            <SearchBar value={searchTerm} onChange={handleSearchChange} />
+          </span>
         </header>
         <main className="flex flex-1 flex-col overflow-hidden">
-          <div className="border-b p-4">
-            <SearchBar value={searchTerm} onChange={handleSearchChange} />
+          <div className="flex items-center justify-between border-b p-4">
+            <h2 className="flex-1/2 text-xl font-bold">Launches</h2>
+            <span className="flex-1/2">
+              <LaunchStats />
+            </span>
           </div>
 
           <div className="min-h-0 flex-1 overflow-y-auto" ref={listContainer}>

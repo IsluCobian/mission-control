@@ -111,7 +111,7 @@ export function LaunchList({
                   <XCircle className="text-destructive size-5" />
                 )}
                 {launch.upcoming && (
-                  <Clock className="size-4.5 text-amber-500" />
+                  <Clock className="size-4.5 text-blue-500" />
                 )}
               </div>
             </div>
