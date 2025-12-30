@@ -62,12 +62,12 @@ export function LaunchDetails({
                         openModal(patchUrl, `${launch.name} patch`)
                       }
                     }}
-                    className="border-border bg-card relative size-12 cursor-pointer rounded-lg border p-1.5 transition-opacity hover:opacity-80"
+                    className="border-border bg-card relative flex size-12 cursor-pointer items-center justify-center rounded-lg border p-1.5 transition-opacity hover:opacity-80"
                   >
                     <img
                       src={launch.links.patch.small}
                       alt={`${launch.name} patch`}
-                      className="object-contain"
+                      className="h-full object-contain"
                     />
                   </button>
                 )}
@@ -81,7 +81,7 @@ export function LaunchDetails({
               />
             </div>
 
-            <div className="mb-6 grid gap-4 sm:grid-cols-2">
+            <div className="mb-6 grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-0.5">
                 <p className="text-muted-foreground text-xs font-medium">
                   Launch Date

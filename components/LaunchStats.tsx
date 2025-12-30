@@ -29,13 +29,13 @@ export function LaunchStats() {
   ]
 
   return (
-    <div className="grid grid-cols-1 justify-items-end gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-3 justify-items-center gap-3 md:justify-items-end">
       {statCards.map((stat) => {
         return (
           <div key={stat.label} className="flex items-center gap-3">
             <div className={cn("size-1 rounded-full", stat.color)} />
             <div className="min-w-0 flex-1">
-              <p className="text-2xl leading-[1.2] font-bold">
+              <p className="text-xl leading-[1.2] font-bold md:text-2xl">
                 {isLoading ? "..." : stats ? stat.value : "0"}
               </p>
               <p className="text-muted-foreground text-xs">{stat.label}</p>

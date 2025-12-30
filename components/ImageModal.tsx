@@ -21,7 +21,7 @@ export function ImageModal() {
         />
         <DialogPrimitive.Content
           className={cn(
-            "fixed top-[50%] left-[50%] z-50 w-full max-w-5xl translate-x-[-50%] translate-y-[-50%]",
+            "fixed top-[50%] left-[50%] z-50 w-full max-w-xs translate-x-[-50%] translate-y-[-50%] md:max-w-5xl",
             "data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0",
             "data-[state=closed]:zoom-out-90",

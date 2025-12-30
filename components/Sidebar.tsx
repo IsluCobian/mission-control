@@ -6,16 +6,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
 import {
-  ChevronDown,
-  HelpCircle,
-  PanelLeft,
-  Rocket,
-  Settings,
-} from "lucide-react"
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import { cn } from "@/lib/utils"
+import { ChevronDown, PanelLeft, Rocket, Menu } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { ModeToggle } from "@/components/ModeToogle"
+import { useScreenSize } from "@/hooks/useScreenSize"
+
 interface SubItem {
   icon: React.ReactNode
   label: string
@@ -48,45 +50,45 @@ const sidebarSections: SidebarSection[] = [
   },
 ]
 
-export function Sidebar() {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const [activeItem, setActiveItem] = useState("/")
-  const [expandedItems, setExpandedItems] = useState<string[]>([])
-  const itemsRef = useRef<Map<string, HTMLAnchorElement>>(new Map())
-  const [indicatorStyle, setIndicatorStyle] = useState({
-    top: 0,
-    height: 0,
-  })
+interface SidebarContentProps {
+  isCollapsed: boolean
+  activeItem: string
+  expandedItems: string[]
+  itemsRef: React.MutableRefObject<Map<string, HTMLAnchorElement>>
+  indicatorStyle: { top: number; height: number }
+  onToggleSidebar?: () => void
+  onToggleItem: (href: string) => void
+  onSetActiveItem: (href: string) => void
+  onCloseMobile?: () => void
+}
 
-  const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed)
+function SidebarContent({
+  isCollapsed,
+  activeItem,
+  expandedItems,
+  itemsRef,
+  indicatorStyle,
+  onToggleSidebar,
+  onToggleItem,
+  onSetActiveItem,
+  onCloseMobile,
+}: SidebarContentProps) {
+  const handleItemClick = (href: string, hasSubItems: boolean) => {
+    if (hasSubItems && !isCollapsed) {
+      onToggleItem(href)
+    } else {
+      onSetActiveItem(href)
+      onCloseMobile?.()
+    }
   }
 
-  const toggleItem = (href: string) => {
-    setExpandedItems((prev) =>
-      prev.includes(href)
-        ? prev.filter((item) => item !== href)
-        : [...prev, href]
-    )
+  const handleSubItemClick = (href: string) => {
+    onSetActiveItem(href)
+    onCloseMobile?.()
   }
-
-  useEffect(() => {
-    const activeElement = itemsRef.current.get(activeItem)
-    if (!activeElement) return
-
-    setIndicatorStyle({
-      top: activeElement.offsetTop,
-      height: activeElement.offsetHeight,
-    })
-  }, [activeItem, isCollapsed, expandedItems])
 
   return (
-    <div
-      className={cn(
-        "bg-muted/60 dark:bg-card relative flex h-screen flex-col border-r transition-all duration-350 ease-in-out",
-        isCollapsed ? "w-16" : "w-60"
-      )}
-    >
+    <>
       <div className="inline-flex h-14 items-center justify-between px-4">
         <div
           className={cn(
@@ -96,22 +98,24 @@ export function Sidebar() {
         >
           <span className="font-audio line-clamp-1 text-lg">SpaceY</span>
         </div>
-        <button
-          onClick={toggleSidebar}
-          className="hover:bg-primary/15 text-muted-foreground hover:text-primary cursor-pointer rounded-lg p-2 transition-colors"
-        >
-          <PanelLeft
-            className={cn(
-              "size-5 transition-transform duration-300 ease-in-out",
-              isCollapsed && "rotate-180"
-            )}
-          />
-        </button>
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            className="hover:bg-primary/15 text-muted-foreground hover:text-primary cursor-pointer rounded-lg p-2 transition-colors"
+          >
+            <PanelLeft
+              className={cn(
+                "size-5 transition-transform duration-300 ease-in-out",
+                isCollapsed && "rotate-180"
+              )}
+            />
+          </button>
+        )}
       </div>
 
       <nav className="relative flex-1 space-y-4 px-2 py-4">
         <div
-          className="bg-primary absolute left-0 w-1 rounded-full transition-all duration-200 ease-in-out"
+          className="bg-primary invisible absolute left-0 w-1 rounded-full transition-all duration-200 ease-in-out md:visible"
           style={{
             top: indicatorStyle.top,
             height: indicatorStyle.height,
@@ -141,14 +145,10 @@ export function Sidebar() {
                           itemsRef.current.delete(item.href)
                         }
                       }}
-                      href="#"
+                      href={item.href}
                       onClick={(e) => {
                         e.preventDefault()
-                        if (hasSubItems && !isCollapsed) {
-                          toggleItem(item.href)
-                        } else {
-                          setActiveItem(item.href)
-                        }
+                        handleItemClick(item.href, !!hasSubItems)
                       }}
                       className={cn(
                         "flex items-center justify-between rounded-lg p-3 text-sm font-medium transition-colors duration-200 ease-in-out [&_svg]:size-5",
@@ -192,10 +192,10 @@ export function Sidebar() {
                                 itemsRef.current.delete(subItem.href)
                               }
                             }}
-                            href="#"
+                            href={subItem.href}
                             onClick={(e) => {
                               e.preventDefault()
-                              setActiveItem(subItem.href)
+                              handleSubItemClick(subItem.href)
                             }}
                             className={cn(
                               "flex items-center rounded-lg p-2 text-sm font-medium transition-colors duration-200 ease-in-out [&_svg]:size-4",
@@ -248,6 +248,89 @@ export function Sidebar() {
           </Tooltip>
         </TooltipProvider>
       </div>
+    </>
+  )
+}
+
+interface SidebarProps {
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
+export function Sidebar({ open, onOpenChange }: SidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [activeItem, setActiveItem] = useState("/")
+  const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const itemsRef = useRef<Map<string, HTMLAnchorElement>>(new Map())
+  const [indicatorStyle, setIndicatorStyle] = useState({
+    top: 0,
+    height: 0,
+  })
+  const { isMobile, width } = useScreenSize()
+
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed)
+  }
+
+  const toggleItem = (href: string) => {
+    setExpandedItems((prev) =>
+      prev.includes(href)
+        ? prev.filter((item) => item !== href)
+        : [...prev, href]
+    )
+  }
+
+  useEffect(() => {
+    const activeElement = itemsRef.current.get(activeItem)
+    if (!activeElement) return
+
+    setIndicatorStyle({
+      top: activeElement.offsetTop,
+      height: activeElement.offsetHeight,
+    })
+  }, [activeItem, isCollapsed, expandedItems])
+
+  const sidebarContent = (
+    <SidebarContent
+      isCollapsed={isMobile ? false : isCollapsed}
+      activeItem={activeItem}
+      expandedItems={expandedItems}
+      itemsRef={itemsRef}
+      indicatorStyle={indicatorStyle}
+      onToggleSidebar={isMobile ? undefined : toggleSidebar}
+      onToggleItem={toggleItem}
+      onSetActiveItem={setActiveItem}
+      onCloseMobile={isMobile ? () => onOpenChange?.(false) : undefined}
+    />
+  )
+
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetHeader className="sr-only">
+          <SheetTitle>SpaceY</SheetTitle>
+        </SheetHeader>
+        <SheetContent side="left" className="w-60 p-0">
+          <div className="bg-muted/60 dark:bg-card relative flex h-full flex-col">
+            {sidebarContent}
+          </div>
+        </SheetContent>
+      </Sheet>
+    )
+  }
+
+  return (
+    <div
+      className={cn(
+        "bg-muted/60 dark:bg-card relative flex h-screen flex-col border-r transition-all duration-350 ease-in-out",
+        isCollapsed ? "w-16" : "w-60"
+      )}
+    >
+      {sidebarContent}
     </div>
   )
+}
+
+export function SidebarTrigger() {
+  return <Menu className="size-5" />
 }
