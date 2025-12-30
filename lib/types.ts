@@ -56,3 +56,22 @@ export interface LaunchPad {
   details?: string;
   status?: string;
 }
+
+export interface LaunchesQueryResponse {
+  docs: Launch[];
+  totalDocs: number;
+  limit: number;
+  totalPages: number;
+  page: number;
+  pagingCounter: number;
+  hasPrevPage: boolean;
+  hasNextPage: boolean;
+  prevPage: number | null;
+  nextPage: number | null;
+}
+
+export interface LaunchesQueryOptions {
+  page?: number;
+  limit?: number;
+  search?: string;
+}

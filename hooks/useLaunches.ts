@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchLaunches, fetchLaunchById, fetchLaunchpadById } from "@/lib/api";
-import type { Launch, LaunchPad } from "@/lib/types";
+import type { Launch, LaunchPad, LaunchesQueryOptions, LaunchesQueryResponse } from "@/lib/types";
 
-export function useLaunches() {
-  return useQuery<Launch[]>({
-    queryKey: ["launches"],
-    queryFn: fetchLaunches,
+export function useLaunches(options: LaunchesQueryOptions = {}) {
+  return useQuery<LaunchesQueryResponse>({
+    queryKey: ["launches", options.page, options.limit, options.search],
+    queryFn: () => fetchLaunches(options),
   });
 }
 

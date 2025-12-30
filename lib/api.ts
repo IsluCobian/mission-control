@@ -1,9 +1,37 @@
-import { Launch, LaunchPad } from "./types";
+import { Launch, LaunchPad, LaunchesQueryResponse, LaunchesQueryOptions } from "./types";
 
 const BASE_URL = "https://api.spacexdata.com/v4";
 
-export async function fetchLaunches(): Promise<Launch[]> {
-  const res = await fetch(`${BASE_URL}/launches`);
+export async function fetchLaunches(
+  options: LaunchesQueryOptions = {}
+): Promise<LaunchesQueryResponse> {
+  const { page = 1, limit = 20, search = "" } = options;
+
+  const query: any = {};
+  const optionsPayload: any = {
+    page,
+    limit,
+    sort: { date_utc: "desc" },
+  };
+
+  // Build search query if search term is provided
+  if (search.trim()) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { details: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const res = await fetch(`${BASE_URL}/launches/query`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query,
+      options: optionsPayload,
+    }),
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch launches");
