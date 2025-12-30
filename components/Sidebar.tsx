@@ -46,23 +46,6 @@ const sidebarSections: SidebarSection[] = [
       },
     ],
   },
-  {
-    title: "Support",
-    items: [
-      {
-        icon: <HelpCircle />,
-        label: "Help",
-        href: "/help",
-        disabled: true,
-      },
-      {
-        icon: <Settings />,
-        label: "Settings",
-        href: "/settings",
-        disabled: true,
-      },
-    ],
-  },
 ]
 
 export function Sidebar() {
@@ -253,10 +236,13 @@ export function Sidebar() {
           <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
               <div>
-                <ModeToggle />
+                <ModeToggle size={isCollapsed ? "default" : "expanded"} />
               </div>
             </TooltipTrigger>
-            <TooltipContent side="right">
+            <TooltipContent
+              side="right"
+              className={!isCollapsed ? "sr-only" : ""}
+            >
               <p>Toggle theme</p>
             </TooltipContent>
           </Tooltip>
