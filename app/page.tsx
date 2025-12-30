@@ -1,91 +1,117 @@
-"use client";
+"use client"
 
-import { useState, useCallback, useRef } from "react";
-import { useLaunches, useLaunch } from "@/hooks/useLaunches";
-import { SearchBar } from "@/components/SearchBar";
-import { LaunchList } from "@/components/LaunchList";
-import { LaunchDetails } from "@/components/LaunchDetails";
-import { PaginationControls } from "@/components/PaginationControls";
-import type { Launch, LaunchesQueryResponse } from "@/lib/types";
-import { ModeToggle } from "@/components/ModeToogle";
+import { LaunchDetails } from "@/components/LaunchDetails"
+import { LaunchList } from "@/components/LaunchList"
+import { ModeToggle } from "@/components/ModeToogle"
+import { PaginationControls } from "@/components/PaginationControls"
+import { SearchBar } from "@/components/SearchBar"
+import { Sidebar } from "@/components/Sidebar"
+import { useLaunch, useLaunches } from "@/hooks/useLaunches"
+import type { Launch } from "@/lib/types"
+import { ChevronRight } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
-const LAUNCHES_PER_PAGE = 20;
+const LAUNCHES_PER_PAGE = 20
+const SEARCH_DEBOUNCE_MS = 300
 
 export default function Home() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLaunchId, setSelectedLaunchId] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const listContainer = useRef<HTMLDivElement>(null);
+  const [searchTerm, setSearchTerm] = useState("")
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
+  const [selectedLaunchId, setSelectedLaunchId] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const listContainer = useRef<HTMLDivElement>(null)
 
-  const { data: launchesData, isLoading, error } = useLaunches({
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm)
+    }, SEARCH_DEBOUNCE_MS)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [searchTerm])
+
+  const {
+    data: launchesData,
+    isLoading,
+    error,
+  } = useLaunches({
     page,
     limit: LAUNCHES_PER_PAGE,
-    search: searchTerm,
-  });
+    search: debouncedSearchTerm,
+  })
 
   const { data: selectedLaunch, isLoading: isLoadingDetails } =
-    useLaunch(selectedLaunchId);
+    useLaunch(selectedLaunchId)
 
-  // Reset to page 1 when search term changes
+  // Reset to page 1 when debounced search term changes
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearchTerm])
+
   const handleSearchChange = useCallback((value: string) => {
-    setSearchTerm(value);
-    setPage(1);
-  }, []);
+    setSearchTerm(value)
+  }, [])
 
   const handleSelectLaunch = (launch: Launch) => {
-    setSelectedLaunchId(launch.id);
-  };
+    setSelectedLaunchId(launch.id)
+  }
 
   const handleCloseDetails = () => {
-    setSelectedLaunchId(null);
-  };
+    setSelectedLaunchId(null)
+  }
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+    setPage(newPage)
     // Scroll to top when page changes
     if (listContainer.current) {
-      listContainer.current.scrollTo({ top: 0, behavior: "smooth" });
+      listContainer.current.scrollTo({ top: 0, behavior: "smooth" })
     }
-  };
+  }
 
   return (
-    <div className="flex h-screen flex-col">
-      <header className="border-b px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold">Mission Control</h1>
-          <ModeToggle />
-        </div>
-      </header>
-      <main className="flex flex-1 flex-col overflow-hidden">
-        <div className="border-b p-4">
-          <SearchBar value={searchTerm} onChange={handleSearchChange} />
-        </div>
+    <div className="flex">
+      <Sidebar />
+      <div className="flex h-dvh flex-1 flex-col">
+        <header className="border-b px-4 py-4 sm:px-6">
+          <h1 className="flex items-center gap-1.5 leading-none">
+            <span className="text-muted-foreground leading-0">SpaceY</span>
+            <ChevronRight className="text-muted-foreground size-4" />
+            Mission Control
+          </h1>
+        </header>
+        <main className="flex flex-1 flex-col overflow-hidden">
+          <div className="border-b p-4">
+            <SearchBar value={searchTerm} onChange={handleSearchChange} />
+          </div>
 
-        <div className="flex-1 overflow-y-auto" ref={listContainer}>
-          <LaunchList
-            launches={launchesData?.docs || []}
-            selectedLaunchId={selectedLaunchId}
-            onSelectLaunch={handleSelectLaunch}
+          <div className="min-h-0 flex-1 overflow-y-auto" ref={listContainer}>
+            <LaunchList
+              launches={launchesData?.docs || []}
+              selectedLaunchId={selectedLaunchId}
+              onSelectLaunch={handleSelectLaunch}
+              isLoading={isLoading}
+              error={error}
+            />
+          </div>
+
+          <PaginationControls
+            currentPage={launchesData?.page || 1}
+            totalPages={launchesData?.totalPages || 1}
+            hasNextPage={launchesData?.hasNextPage || false}
+            hasPrevPage={launchesData?.hasPrevPage || false}
+            onPageChange={handlePageChange}
             isLoading={isLoading}
-            error={error}
           />
-        </div>
 
-        <PaginationControls
-          currentPage={launchesData?.page || 1}
-          totalPages={launchesData?.totalPages || 1}
-          hasNextPage={launchesData?.hasNextPage || false}
-          hasPrevPage={launchesData?.hasPrevPage || false}
-          onPageChange={handlePageChange}
-          isLoading={isLoading}
-        />
-
-        <LaunchDetails
-          launch={selectedLaunch || null}
-          onClose={handleCloseDetails}
-          isLoading={isLoadingDetails}
-        />
-      </main>
+          <LaunchDetails
+            launch={selectedLaunch || null}
+            onClose={handleCloseDetails}
+            isLoading={isLoadingDetails}
+          />
+        </main>
+      </div>
     </div>
-  );
+  )
 }
