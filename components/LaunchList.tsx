@@ -96,6 +96,13 @@ export function LaunchList({
               isSelected && "border-accent ring-2"
             )}
           >
+            <div
+              className={cn(
+                "absolute top-1/2 -left-0.5 h-3/5 w-1 -translate-y-1/2 rounded-xl",
+                launch.success ? "bg-green-500" : "bg-destructive",
+                launch.upcoming && "bg-blue-500"
+              )}
+            />
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <h3 className="truncate font-semibold">{launch.name}</h3>
