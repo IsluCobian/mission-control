@@ -322,7 +322,7 @@ export function Sidebar({ open, onOpenChange }: SidebarProps) {
   return (
     <div
       className={cn(
-        "bg-muted/60 dark:bg-card relative flex h-screen flex-col border-r transition-all duration-350 ease-in-out",
+        "bg-muted/40 dark:bg-card/30 relative flex h-screen flex-col border-r transition-all duration-350 ease-in-out",
         isCollapsed ? "w-16" : "w-60"
       )}
     >

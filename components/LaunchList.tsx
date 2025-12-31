@@ -88,8 +88,11 @@ export function LaunchList({
             key={launch.id}
             onClick={() => onSelectLaunch(launch)}
             className={cn(
-              "group ring-primary/50 flex cursor-pointer flex-col gap-2 rounded-lg border p-4 text-left ring-0 transition-all ease-in-out",
+              "group ring-primary/50 relative flex cursor-pointer flex-col gap-2 overflow-hidden rounded-lg border p-4 text-left ring-0 transition-all ease-in-out",
               "hover:shadow-sm hover:ring-1",
+              "bg-linear-to-bl from-transparent from-60%",
+              launch.success ? "to-green-500/10" : "to-destructive/10",
+              launch.upcoming && "to-blue-500/10",
               isSelected && "border-accent ring-2"
             )}
           >
@@ -120,6 +123,13 @@ export function LaunchList({
                 {launch.details}
               </p>
             )}
+            {/* <div
+              className={cn(
+                "absolute top-1/3 left-0 h-full w-1/4 -translate-x-1/2 rounded-2xl opacity-10 blur-lg dark:opacity-10",
+                launch.success ? "bg-green-400" : "bg-destructive",
+                launch.upcoming && "bg-blue-500"
+              )}
+            /> */}
           </button>
         )
       })}

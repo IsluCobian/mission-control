@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { useLaunch, useLaunches } from "@/hooks/useLaunches"
 import { useScreenSize } from "@/hooks/useScreenSize"
 import type { Launch } from "@/lib/types"
+import { cn } from "@/lib/utils"
 import { ChevronRight } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 
@@ -78,8 +79,8 @@ export default function Home() {
     <div className="flex">
       <Sidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} />
       <div className="flex h-dvh flex-1 flex-col">
-        <header className="flex flex-col justify-between gap-4 border-b px-4 py-4 sm:px-6 md:flex-row">
-          <div className="flex items-center gap-4">
+        <header className="relative flex flex-col justify-between gap-4 overflow-hidden border-b px-4 py-4 sm:px-6 md:flex-row">
+          <div className="flex items-center">
             {isMobile && (
               <Button
                 variant="ghost"
@@ -90,6 +91,7 @@ export default function Home() {
                 <SidebarTrigger />
               </Button>
             )}
+            <div className="mr-2 ml-4 h-3/5 w-1 rounded-md bg-blue-500 md:ml-0" />
             <h1 className="flex items-center gap-1.5 leading-none">
               <span className="text-muted-foreground leading-0">SpaceY</span>
               <ChevronRight className="text-muted-foreground size-4" />
@@ -101,7 +103,11 @@ export default function Home() {
           </span>
         </header>
         <main className="flex flex-1 flex-col overflow-hidden">
-          <div className="flex flex-col justify-between gap-4 border-b p-4 md:flex-row md:items-center">
+          <div
+            className={cn(
+              "flex flex-col justify-between gap-4 border-b p-4 md:flex-row md:items-center"
+            )}
+          >
             <h2 className="text-xl font-bold md:flex-1/2">Launches</h2>
             <span className="md:flex-1/2">
               <LaunchStats />
